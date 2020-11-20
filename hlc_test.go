@@ -4,6 +4,18 @@ import (
 	"testing"
 )
 
+func TestFromTimestamp(t *testing.T) {
+	ts := int64(1605806872706744321)
+	hlc := FromTimestamp(ts)
+
+	l :=int64(1605806872706744320)
+	c :=int64(1)
+
+	if l != hlc.ts || c != hlc.counter {
+		t.Errorf("unexpected result. %d != %d and %d != %d", l, hlc.ts, c, hlc.counter)
+	}
+}
+
 func TestHlc_PaperExample(t *testing.T) {
 	// Implementation of example from paper (3.3 HLC Algorithm, Figure 6.)
 	// (see also a scheme testdata/example.png)

@@ -21,12 +21,20 @@ func New(clock Clock) *Hlc {
 	return &Hlc{ts: clock.Now(), counter: 0, clock: clock}
 }
 
+// FromTimestamp takes a special NTP-compatible timestamp and returns Hlc instance
+// Restriction: timestamp should contains from two part: 1. 48bit of time 2. 16 bit of counter
+func FromTimestamp(ts int64) *Hlc {
+	mask := uint64(0xFFFF)
+	l := int64(uint64(ts) & ^mask)
+	c := int64(uint64(ts) & mask)
+
+	return &Hlc{ts: l, counter: c, clock: nil}
+}
+
 // Now returns NTP-compatible timestamp with logical time.
 // Should be called for every local or outgoing event.
 func (hlc *Hlc) Now() int64 {
 	hlc.Lock()
-	defer hlc.Unlock()
-
 	ts := hlc.ts
 	hlc.ts = max(ts, hlc.clock.Now())
 	if hlc.ts == ts {
@@ -34,6 +42,7 @@ func (hlc *Hlc) Now() int64 {
 	} else {
 		hlc.counter = 0
 	}
+	hlc.Unlock()
 
 	return hlc.Timestamp()
 }
@@ -44,8 +53,6 @@ func (hlc *Hlc) Now() int64 {
 // rc is a remote hlc, can be extracted from NTP-timestamp (see FromTimestamp)
 func (hlc *Hlc) Update(rc *Hlc) int64 {
 	hlc.Lock()
-	defer hlc.Unlock()
-
 	ts := hlc.ts
 	hlc.ts = max(ts, rc.ts, hlc.clock.Now())
 	if hlc.ts == ts && hlc.ts == rc.ts {
@@ -57,6 +64,7 @@ func (hlc *Hlc) Update(rc *Hlc) int64 {
 	} else {
 		hlc.counter = 0
 	}
+	hlc.Unlock()
 
 	return hlc.Timestamp()
 }

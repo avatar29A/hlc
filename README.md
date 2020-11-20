@@ -1,4 +1,9 @@
 # hlc
+
+![Build Status](https://img.shields.io/circleci/project/avatar29A/hlc.svg)
+![Go Programming Language](https://img.shields.io/badge/language-golang-blue.svg)
+![MIT License](https://img.shields.io/github/license/avatar29A/hlc)
+
 Hybrid Logical Clock
 
 Original Paper: [Logical Physical Clocksand Consistent Snapshots in Globally Distributed Databases](https://cse.buffalo.edu/tech-reports/2014-04.pdf)

@@ -1,11 +1,27 @@
 package hlc
 
 import (
+	"math/bits"
 	"time"
 )
 
 type Clock interface {
 	Now() int64
+}
+
+// NTPClock use only 48bit to storing time. Preferable to use with HLC implementation.
+type NTPClock struct {
+	c Clock
+}
+
+// Now returns rounded upto 48bit Nano-time
+func (ntp *NTPClock) Now() int64 {
+	if ntp.c == nil {
+		ntp.c = &NanoClock{}
+	}
+
+	mask := bits.Reverse64(^uint64(0) >> 16 )
+	return int64(uint64(ntp.c.Now()) & mask)
 }
 
 // Physical clock with nano-accuracy
